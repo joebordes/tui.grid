@@ -411,15 +411,11 @@ export function paste(store: Store, pasteData: string[][]) {
   changeSelectionRange(selection, getSelectionRange(rangeToPaste, pageOptions), id);
 }
 
-function setDisabledAllCheckbox({ data }: Store, disabled: boolean) {
+function setDisabledAllCheckbox({ data }: Store) {
   const { rawData } = data;
 
-  if (disabled) {
-    data.disabledAllCheckbox =
-      !!rawData.length && rawData.every(row => row._attributes.checkDisabled);
-  } else {
-    data.disabledAllCheckbox = false;
-  }
+  data.disabledAllCheckbox =
+    !!rawData.length && rawData.every(row => row._attributes.checkDisabled);
 }
 
 function setRowOrColumnDisabled(target: RowAttributes | ColumnInfo, disabled: boolean) {
@@ -461,7 +457,7 @@ export function setRowDisabled(
 
     if (withCheckbox) {
       _attributes.checkDisabled = disabled;
-      setDisabledAllCheckbox(store, disabled);
+      setDisabledAllCheckbox(store);
     }
     setRowOrColumnDisabled(_attributes, disabled);
   }
@@ -483,7 +479,7 @@ export function setRowCheckDisabled(store: Store, disabled: boolean, rowKey: Row
   const row = findRowByRowKey(data, column, id, rowKey, false);
   if (row) {
     row._attributes.checkDisabled = disabled;
-    setDisabledAllCheckbox(store, disabled);
+    setDisabledAllCheckbox(store);
   }
 }
 
@@ -544,7 +540,7 @@ export function appendRow(store: Store, row: OptRow, options: OptAppendRow) {
   updateSummaryValueByRow(store, rawRow, { type: 'APPEND' });
   setLoadingState(store, 'DONE');
   updateRowNumber(store, at);
-  updateHeaderCheckbox(store);
+  setDisabledAllCheckbox(store);
 }
 
 export function removeRow(store: Store, rowKey: RowKey, options: OptRemoveRow) {
@@ -596,7 +592,7 @@ export function removeRow(store: Store, rowKey: RowKey, options: OptRemoveRow) {
   updateSummaryValueByRow(store, removedRow, { type: 'REMOVE' });
   setLoadingState(store, getLoadingState(rawData));
   updateRowNumber(store, rowIdx);
-  updateHeaderCheckbox(store);
+  setDisabledAllCheckbox(store);
 }
 
 export function clearData(store: Store) {
@@ -884,16 +880,6 @@ export function updateRowNumber({ data }: Store, startIndex: number) {
   }
 }
 
-function updateHeaderCheckbox({ data }: Store) {
-  const { rawData } = data;
-
-  data.disabledAllCheckbox =
-    !!rawData.length &&
-    rawData.every(function(row) {
-      return row._attributes.checkDisabled;
-    });
-}
-
 export function setRow(store: Store, rowIndex: number, row: OptRow) {
   const { data, id } = store;
   const { rawData, viewData, sortState } = data;
@@ -986,5 +972,5 @@ export function appendRows(store: Store, inputData: OptRow[]) {
   sortByCurrentState(store);
   updateRowNumber(store, startIndex);
   updateHeights(store);
-  updateHeaderCheckbox(store);
+  setDisabledAllCheckbox(store);
 }
