@@ -3,12 +3,15 @@ import { OptGrid } from '@/types';
 import { Row } from '@/store/types';
 
 function assertHeaderCheckboxStatus(disable: boolean) {
-  const elem = cy.get('.tui-grid-cell-row-header input').eq(0);
+  cy.getByCls('cell-row-header')
+    .get('input')
+    .eq(0)
+    .as('checkbox');
 
   if (disable) {
-    elem.should('be.disabled');
+    cy.get('@checkbox').should('be.disabled');
   } else {
-    elem.should('not.be.disabled');
+    cy.get('@checkbox').should('not.be.disabled');
   }
 }
 
